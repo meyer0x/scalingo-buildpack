@@ -1,6 +1,2 @@
 #!/bin/bash
 echo "MEYER TEST BUILDPACK SCALINGO"
-node -v
-npm -v
-npx -v
-pnpm -v
