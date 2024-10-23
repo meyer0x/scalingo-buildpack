@@ -76,7 +76,7 @@ cd $BUILD_DIR
 
 echo "-----> Moving pruned files to build directory"
 set +e  # Désactive temporairement set -e
-rsync -a --delete out/ . 
+rsync -a --delete-after out/ . 
 rsync_exit_code=$?
 set -e  # Réactive set -e
 if [ $rsync_exit_code -ne 0 ] && [ $rsync_exit_code -ne 24 ]; then
