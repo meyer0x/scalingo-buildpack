@@ -6,6 +6,24 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
+
+# Check if APP_TO_BUILD is set
+if [ -z "$APP_TO_BUILD" ]; then
+    echo "Error: APP_TO_BUILD is not set"
+    exit 1
+fi
+
+echo "APP_TO_BUILD is set to: $APP_TO_BUILD"
+
+# Validate APP_TO_BUILD against a list of allowed values
+allowed_apps=("landing" "admin-web" "patient-web" "doctor-web" "dispatcher-web" "api")
+if [[ ! " ${allowed_apps[@]} " =~ " ${APP_TO_BUILD} " ]]; then
+    echo "Error: Invalid APP_TO_BUILD value. Allowed values are: ${allowed_apps[*]}"
+    exit 1
+fi
+
+echo "APP_TO_BUILD is valid"
+
 echo "-----> Installing nvm and Node.js"
 
 # Installer nvm dans le répertoire approprié
