@@ -25,14 +25,14 @@ mkdir -p /app/.profile.d
 cat << EOF > /app/.profile.d/001_nodejs.sh
 export NVM_DIR="/app/.nvm"
 [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-export PATH="/app/.nvm/versions/node/$NODE_VERSION/bin:\$PATH"
+export PATH="$BUILD_DIR/bin:/app/.nvm/versions/node/$NODE_VERSION/bin:\$PATH"
 EOF
 
-# Créer un lien symbolique vers les binaires de Node.js dans /usr/local/bin
-mkdir -p /usr/local/bin
-ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/node" /usr/local/bin/node
-ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/npm" /usr/local/bin/npm
-ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/npx" /usr/local/bin/npx
+# Modifier cette partie pour utiliser un répertoire accessible
+mkdir -p $BUILD_DIR/bin
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/node" $BUILD_DIR/bin/node
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/npm" $BUILD_DIR/bin/npm
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/npx" $BUILD_DIR/bin/npx
 
 # Sourcer le fichier d'environnement immédiatement
 source /app/.profile.d/001_nodejs.sh
@@ -43,7 +43,7 @@ npm --version
 
 echo "-----> Installing pnpm"
 npm install -g pnpm
-ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/pnpm" /usr/local/bin/pnpm
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/pnpm" $BUILD_DIR/bin/pnpm
 
 echo "-----> Pruning monorepo for $APP_TO_BUILD"
 cd $BUILD_DIR
