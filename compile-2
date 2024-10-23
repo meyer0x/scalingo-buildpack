@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+
+# Check if APP_TO_BUILD is set
+if [ -z "$APP_TO_BUILD" ]; then
+    echo "Error: APP_TO_BUILD is not set"
+    exit 1
+fi
+
+echo "APP_TO_BUILD is set to: $APP_TO_BUILD"
+
+# Validate APP_TO_BUILD against a list of allowed values
+allowed_apps=("landing" "admin-web" "patient-web" "doctor-web" "dispatcher-web" "api")
+if [[ ! " ${allowed_apps[@]} " =~ " ${APP_TO_BUILD} " ]]; then
+    echo "Error: Invalid APP_TO_BUILD value. Allowed values are: ${allowed_apps[*]}"
+    exit 1
+fi
+
+echo "APP_TO_BUILD is valid"
+
+echo "-----> Pruning monorepo for $APP_TO_BUILD"
+cd $BUILD_DIR
+pnpm dlx turbo prune --scope=$APP_TO_BUILD
+
+echo "-----> Moving pruned files to build directory"
+set +e  # Désactive temporairement set -e
+rsync -a --delete-after out/ . 
+rsync_exit_code=$?
+set -e  # Réactive set -e
+if [ $rsync_exit_code -ne 0 ] && [ $rsync_exit_code -ne 24 ]; then
+    echo "Rsync failed with exit code $rsync_exit_code"
+    exit $rsync_exit_code
+fi
+rm -rf out
+
+echo "-----> Preparation completed successfully"
+
+# Explicitly exit with success code
+echo "-----> Exiting build script with success code 0"
+exit 0
