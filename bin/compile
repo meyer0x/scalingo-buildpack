@@ -115,3 +115,5 @@ else
     # Utiliser le chemin complet vers pnpm
     /app/.nvm/versions/node/$NODE_VERSION/bin/pnpm run build --filter=$APP_TO_BUILD
 fi
+
+exit 0
