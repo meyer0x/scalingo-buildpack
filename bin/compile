@@ -51,7 +51,7 @@ rm -rf "${BUILD_DIR}/node-v${NODE_VERSION}-linux-x64"
 
 echo "-----> Preparation completed successfully"
 
-ls -R 
+ls -A
 
 # Explicitly exit with success code
 echo "-----> Exiting build script with success code 0"
