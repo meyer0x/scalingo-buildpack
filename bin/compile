@@ -124,3 +124,10 @@ echo "-----> Cleaning up standalone directory"
 rm -rf standalone
 echo "-----> Standalone directory cleaned up"
 echo "-----> Build process completed successfully"
+
+echo "-----> Final directory structure:"
+ls -R
+
+# Explicitly exit with success code
+echo "-----> Exiting build script with success code 0"
+exit 0
