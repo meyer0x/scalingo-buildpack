@@ -1,3 +1,2 @@
----
-default_process_types:
-  web: node apps/$APP_TO_BUILD/server.js
+#!/usr/bin/env bash
+echo -n ""

@@ -130,4 +130,4 @@ ls -R
 
 # Explicitly exit with success code
 echo "-----> Exiting build script with success code 0"
-exit 0
+exit 0 
