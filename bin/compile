@@ -45,9 +45,16 @@ echo "-----> Installing pnpm"
 npm install -g pnpm
 ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/pnpm" $BUILD_DIR/bin/pnpm
 
+# Ajouter cette ligne pour vérifier l'installation de pnpm
+which pnpm
+
+# Ajouter cette ligne pour afficher le contenu du répertoire bin
+ls -la $BUILD_DIR/bin
+
 echo "-----> Pruning monorepo for $APP_TO_BUILD"
 cd $BUILD_DIR
-pnpm dlx turbo prune --scope=$APP_TO_BUILD
+# Utiliser le chemin complet vers pnpm
+/app/.nvm/versions/node/$NODE_VERSION/bin/pnpm dlx turbo prune --scope=$APP_TO_BUILD
 
 echo "-----> Moving pruned files to build directory"
 set +e  # Désactive temporairement set -e
@@ -61,11 +68,13 @@ fi
 rm -rf out
 
 echo "-----> Installing dependencies"
-pnpm install
+# Utiliser le chemin complet vers pnpm
+/app/.nvm/versions/node/$NODE_VERSION/bin/pnpm install
 
 if [ "$APP_TO_BUILD" != "api" ]; then
     echo "-----> Building Next.js application"
-    pnpm run build --filter=$APP_TO_BUILD
+    # Utiliser le chemin complet vers pnpm
+    /app/.nvm/versions/node/$NODE_VERSION/bin/pnpm run build --filter=$APP_TO_BUILD
 
     echo "-----> Preparing standalone output"
     mkdir -p standalone
@@ -85,5 +94,6 @@ if [ "$APP_TO_BUILD" != "api" ]; then
     rm -rf standalone
 else
     echo "-----> Building API"
-    pnpm run build --filter=$APP_TO_BUILD
+    # Utiliser le chemin complet vers pnpm
+    /app/.nvm/versions/node/$NODE_VERSION/bin/pnpm run build --filter=$APP_TO_BUILD
 fi
