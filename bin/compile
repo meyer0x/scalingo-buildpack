@@ -1,0 +1,89 @@
+#!/bin/bash
+
+set -e
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+echo "-----> Installing nvm and Node.js"
+
+# Installer nvm dans le répertoire approprié
+export NVM_DIR="/app/.nvm"
+mkdir -p "$NVM_DIR"
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+# Charger nvm et installer Node.js LTS
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install --lts
+
+# Obtenir la version actuelle de Node.js
+NODE_VERSION=$(nvm current)
+
+# Créer le fichier d'environnement pour Scalingo
+mkdir -p /app/.profile.d
+cat << EOF > /app/.profile.d/001_nodejs.sh
+export NVM_DIR="/app/.nvm"
+[ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+export PATH="/app/.nvm/versions/node/$NODE_VERSION/bin:\$PATH"
+EOF
+
+# Créer un lien symbolique vers les binaires de Node.js dans /usr/local/bin
+mkdir -p /usr/local/bin
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/node" /usr/local/bin/node
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/npm" /usr/local/bin/npm
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/npx" /usr/local/bin/npx
+
+# Sourcer le fichier d'environnement immédiatement
+source /app/.profile.d/001_nodejs.sh
+
+echo "-----> Node.js installation complete"
+node --version
+npm --version
+
+echo "-----> Installing pnpm"
+npm install -g pnpm
+ln -sf "/app/.nvm/versions/node/$NODE_VERSION/bin/pnpm" /usr/local/bin/pnpm
+
+echo "-----> Pruning monorepo for $APP_TO_BUILD"
+cd $BUILD_DIR
+pnpm dlx turbo prune --scope=$APP_TO_BUILD
+
+echo "-----> Moving pruned files to build directory"
+set +e  # Désactive temporairement set -e
+rsync -a --delete out/ . 
+rsync_exit_code=$?
+set -e  # Réactive set -e
+if [ $rsync_exit_code -ne 0 ] && [ $rsync_exit_code -ne 24 ]; then
+    echo "Rsync failed with exit code $rsync_exit_code"
+    exit $rsync_exit_code
+fi
+rm -rf out
+
+echo "-----> Installing dependencies"
+pnpm install
+
+if [ "$APP_TO_BUILD" != "api" ]; then
+    echo "-----> Building Next.js application"
+    pnpm run build --filter=$APP_TO_BUILD
+
+    echo "-----> Preparing standalone output"
+    mkdir -p standalone
+    cp -R apps/$APP_TO_BUILD/.next/standalone/. standalone/
+    cp -R apps/$APP_TO_BUILD/.next/static standalone/.next/
+    cp -R apps/$APP_TO_BUILD/public standalone/
+
+    echo "-----> Moving standalone output to root"
+    set +e  # Désactive temporairement set -e
+    rsync -a --delete-after standalone/ .
+    rsync_exit_code=$?
+    set -e  # Réactive set -e
+    if [ $rsync_exit_code -ne 0 ] && [ $rsync_exit_code -ne 24 ]; then
+        echo "Rsync failed with exit code $rsync_exit_code"
+        exit $rsync_exit_code
+    fi
+    rm -rf standalone
+else
+    echo "-----> Building API"
+    pnpm run build --filter=$APP_TO_BUILD
+fi
