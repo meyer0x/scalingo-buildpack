@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Releasing $APP_TO_BUILD"
+
 cat << EOF
 ---
 addons: []
