@@ -67,6 +67,10 @@ ls -A
 echo "-----> Content of Procfile in build directory:"
 cat Procfile
 
+
+echo "-----> Displaying PORT environment variable"
+echo "PORT: $PORT"
+
 # Explicitly exit with success code
 echo "-----> Exiting build script with success code 0"
 exit 0
