@@ -6,13 +6,6 @@ BUILD_DIR=$1
 CACHE_DIR=$2
 ENV_DIR=$3
 
-# Check if SKIP_BUILD file exists
-if [ -f "$BUILD_DIR/SKIP_BUILD" ]; then
-    echo "-----> SKIP_BUILD file found. Skipping build process."
-    exit 0
-fi
-
-
 # Check if APP_TO_BUILD is set
 if [ -z "$APP_TO_BUILD" ]; then
     echo "Error: APP_TO_BUILD is not set"
@@ -70,10 +63,6 @@ ls -A
 
 echo "-----> Content of Procfile in build directory:"
 cat Procfile
-
-echo "-----> Creating SKIP_BUILD file"
-touch SKIP_BUILD
-echo "-----> SKIP_BUILD file created successfully"
 
 # Explicitly exit with success code
 echo "-----> Exiting build script with success code 0"
