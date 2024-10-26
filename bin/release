@@ -1,2 +1,8 @@
-#!/usr/bin/env bash
-web: bash ../start.sh
+#!/bin/bash
+
+cat << EOF
+---
+addons: []
+default_process_types:
+  web: bash ../start.sh
+EOF
