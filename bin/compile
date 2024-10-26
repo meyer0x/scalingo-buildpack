@@ -43,6 +43,9 @@ else
     exit 1
 fi
 
+echo "-----> Copying bin directory to build directory"
+cp -r bin $BUILD_DIR/bin
+
 echo "-----> Moving pruned files to build directory"
 set +e  # Désactive temporairement set -e
 rsync -a --delete-after out/ . 
