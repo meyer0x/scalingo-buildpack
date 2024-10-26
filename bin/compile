@@ -35,6 +35,15 @@ echo "-----> Pruning monorepo for $APP_TO_BUILD"
 cd $BUILD_DIR
 npx turbo@latest prune --scope=$APP_TO_BUILD
 
+echo "-----> Copying Procfile to pruned output"
+if [ -f "Procfile" ]; then
+    cp Procfile out/
+    echo "-----> Procfile copied successfully."
+else
+    echo "-----> Warning: Procfile not found in root directory."
+    exit 1
+fi
+
 echo "-----> Moving pruned files to build directory"
 set +e  # Désactive temporairement set -e
 rsync -a --delete-after out/ . 
